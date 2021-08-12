@@ -4,14 +4,19 @@ const todoControl = document.querySelector('.todo-control'),
       headerInput = document.querySelector('.header-input'),
       todoList = document.querySelector('.todo-list'),
       todoCompleted = document.querySelector('.todo-completed');
+//  Загрузка данных из localStorage ============================================================
+const todoData = (JSON.parse(localStorage.getItem('todoData')))
+                ? JSON.parse(localStorage.getItem('todoData')): [];
 
-const todoData = [];
-
+//  Запись данных в localStorage ============================================================
+const refreshLocalStorage = function() {
+  localStorage.setItem('todoData', JSON.stringify(todoData));
+};
+//  Отрисовка ================================================================================
 const render = function() {
 
   todoList.textContent = '';
   todoCompleted.textContent = '';
-
 
   todoData.forEach(function(item) {
     const li = document.createElement('li');
@@ -32,36 +37,38 @@ const render = function() {
 
     const btnTodoCompleted = li.querySelector('.todo-complete');
     const btnTodoRemove = li.querySelector('.todo-remove');
-
-
+// Изменение статуса задания ====================================================================
     btnTodoCompleted.addEventListener('click', function() {
       item.completed = !item.completed;
       render();
     });
-
+//  Удаление задания ============================================================================
     btnTodoRemove.addEventListener('click', function(e) {
 
       const obj = {
-        
         value: e.target.parentNode.parentNode.childNodes[0].textContent,
         completed: e.target.parentElement.parentElement.parentElement.id === 'todo'
         ? false : true
       };
-      console.log('obj: ', obj);
-      console.log('todoData[0]: ', todoData[0]);
-      console.log(todoData[0] === obj);
-      const objIndex = todoData.indexOf(obj);
-      console.log('objIndex: ', objIndex);
+
+      let objIndex;
+      todoData.forEach(function(item, index) {
+        if (JSON.stringify(item) === JSON.stringify(obj)) {
+          objIndex = index;
+        }
+      });
+
+      todoData.splice(objIndex, 1);
+      refreshLocalStorage();
 
       render();
     });
-
   });
-
 };
-
+// Добавление задания ============================================================================
 todoControl.addEventListener('submit', function(event) {
   event.preventDefault();
+
   if (headerInput.value !== '') {
     const newTodo = {
       value: headerInput.value,
@@ -70,9 +77,9 @@ todoControl.addEventListener('submit', function(event) {
     
     todoData.push(newTodo);
     headerInput.value = '';
+    refreshLocalStorage();
     render();
   }
-
 });
 
 render();
