@@ -40,6 +40,7 @@ const render = function() {
 // Изменение статуса задания ====================================================================
     btnTodoCompleted.addEventListener('click', function() {
       item.completed = !item.completed;
+      refreshLocalStorage();
       render();
     });
 //  Удаление задания ============================================================================
